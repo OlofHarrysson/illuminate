@@ -1,0 +1,16 @@
+Start with empty one page app with a few controls at top
+You can select one (or more experiments) from a dropdown / regex.
+You can switch views by some tab mechanic. (or dropdown?)
+
+The view should have a layout, even if it's minimum. Each layout componenent can take data-content.
+
+Create a few common views - like scalar and images. Ability to create own, and share it.
+
+(might not be needed - dynamic layout is possible)
+from within a train.py script - log data to illuminator. Illuminator checks wheter a new view or component to view is added. If so, it rebuilds the layout and starts the dash app again.
+
+
+
+Start dash in separate terminal. Only takes simple commands such as port, etc. This is because you want to look at the dashboard after training has completed.
+
+Send data from client (train.py). Also specify the layout here? How to send the layout to the server?
