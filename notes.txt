@@ -13,4 +13,14 @@ from within a train.py script - log data to illuminator. Illuminator checks whet
 
 Start dash in separate terminal. Only takes simple commands such as port, etc. This is because you want to look at the dashboard after training has completed.
 
-Send data from client (train.py). Also specify the layout here? How to send the layout to the server?
+
+Streaming data to flask vs saving file
+
+Streaming data is quicker and doesn't bloat disk space if data is large
+Saving file seems easier and allows for more complex features?
+
+~~~~ Server data ~~~~
+Store everything on disk
+Start server. (Check periodically if server needs to restard to get e.g. new callbacks?)
+In server startup, load data from disk and store in ServersideOutputs
+When a user interacts with controlls e.g. sliders, get the data from the ServersideOutputs, apply transformation and output the result to figures.

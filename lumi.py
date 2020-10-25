@@ -1,75 +1,88 @@
-import dash
+# import dash
 
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 import plotly.io as pio
-from dash.dependencies import Input, Output
-from dashserve.server import SerializedDashServer
-from dashserve.serializer import DashAppSerializer
+# from dash.dependencies import Input, Output, State
+from dash_extensions.enrich import Dash, Output, Input, State, Trigger, ServersideOutput
+
+import pandas as pd
 
 import datetime
 from pathlib import Path
 
 
-def readfig():
-  fig = pio.read_json('fig.json')
+def readfig(path):
+  fig = pio.read_json(str(path))
   return fig
 
 
 def find_experiments():
-  paths = list(Path('').glob('**/*.lumi'))
+  paths = list(Path('').glob('**/meta.lumi.json'))
   options = [dict(label=p.name, value=p.name) for p in paths]
 
   dropdown = dcc.Dropdown(id='demo-dropdown', options=options)
   return dropdown, paths
 
 
-def serve_layout():
-  dropdown, exps = find_experiments()
+def serve_layout(app):
+  # dropdown, exps = find_experiments()
+  index = pd.read_csv('output/exp/meta.lumi.csv')
 
-  print("SERVING LAYOUT")
+  content = []
+  for _, row in index.iterrows():
+    fig = readfig(Path(row['data_path']))
+
+    # Add layout and store
+    name = row['ele_id']
+    store_id = f'{name}-store'
+    fig_id = f'{name}-fig'
+    content.append(dcc.Store(id=store_id, data=fig))
+    content.append(dcc.Graph(id=fig_id))
+
+    # Add callback
+    if row['callback_function'] == 'lumi.smoothing':
+      callb = app.callback(
+        Output(fig_id, 'figure'),
+        Input('my-slider', 'value'),
+        State(store_id, 'data'),
+      )
+      callb(line_smooth)
+
+  print('SERVING LAYOUT')
   layout = html.Div(children=[
     html.H1(children='Welcome to Lumi'),
     html.H1('The time is: ' + str(datetime.datetime.now())),
-    html.H1('Experiments: ' + str(exps)),
-    dropdown,
-    html.Div(id='dd-output-container'),
+    # html.H1('Experiments: ' + str(exps)),
+    # dropdown,
+    dcc.Slider(id='my-slider', min=0, max=1, step=0.01),
+    html.Div(id='slider-output-container'),
+    html.Div(content)
   ])
 
-  # exp_app = SerializedDashServer.from_file(exps[0]).serialized_app
-  # serializer = DashAppSerializer()
-  # exp_app = serializer.deserialize(exp_app)
-
-  # layout = html.Div([layout, exp_app.layout])
   return layout
 
 
-def init_callbacks(app):
-  @app.callback(dash.dependencies.Output('dd-output-container', 'children'),
-                [dash.dependencies.Input('demo-dropdown', 'value')])
-  def update_output(value):
-    if value is None:
-      return html.Div('EMPTY')
-    exp_app = SerializedDashServer.from_file(value).serialized_app
-    serializer = DashAppSerializer()
-    exp_app = serializer.deserialize(exp_app)
-    print(dir(exp_app))
-    print(exp_app.callback)
-    print(exp_app.callback_map)
-    print(exp_app.clientside_callback)
-    return exp_app.layout
+def line_smooth(smooth, fig):
+  window = int(smooth * 49) + 1
+
+  y = fig['data'][0]['y']
+  df = pd.Series(y)
+  y = df.rolling(window, min_periods=1).mean()
+  y = y.to_numpy()
+  fig['data'][0]['y'] = y
+  return fig
 
 
 def main():
-  # server = SerializedDashServer.from_file('app.dash')
-  # server.run(host='localhost', port=8050)
-
   external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-  app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-  app.layout = serve_layout
-  print("STARTING SERVER")
-  init_callbacks(app)
+  app = Dash(__name__,
+             external_stylesheets=external_stylesheets,
+             prevent_initial_callbacks=True)
+  # app.layout = serve_layout
+  app.layout = serve_layout(app)
+  print('STARTING SERVER')
   app.run_server(debug=True)
 
 
@@ -78,7 +91,7 @@ if __name__ == '__main__':
 
 # Vision 1
 # Starts lumi --path=outputdir
-# Visit browser and see "empty" server
+# Visit browser and see 'empty' server
 # Starts train.py, send all info
 # Visit browser, see new experiment there with all data
 # Starts new train.py, all that information also shows up
