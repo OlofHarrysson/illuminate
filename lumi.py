@@ -2,6 +2,7 @@
 
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.io as pio
 # from dash.dependencies import Input, Output, State
@@ -16,6 +17,16 @@ from pathlib import Path
 def readfig(path):
   fig = pio.read_json(str(path))
   return fig
+
+
+def make_card(content, title):
+  return dbc.Card(
+    [
+      html.H4(title, className='card-title'),
+      html.Div(content),
+    ],
+    body=True,
+  )
 
 
 def find_experiments():
@@ -39,7 +50,8 @@ def serve_layout(app):
     store_id = f'{name}-store'
     fig_id = f'{name}-fig'
     content.append(dcc.Store(id=store_id, data=fig))
-    content.append(dcc.Graph(id=fig_id))
+    card = make_card(dcc.Graph(id=fig_id), fig_id)
+    content.append(card)
 
     # Add callback
     if row['callback_function'] == 'lumi.smoothing':
@@ -52,55 +64,85 @@ def serve_layout(app):
 
   print('SERVING LAYOUT')
   layout = html.Div(children=[
-    html.H1(children='Welcome to Lumi'),
-    html.H1('The time is: ' + str(datetime.datetime.now())),
+    navbar_view(),
+    sidebar_view(),
+    content_view(content),
     # html.H1('Experiments: ' + str(exps)),
     # dropdown,
-    dcc.Slider(id='my-slider', min=0, max=1, step=0.01),
-    html.Div(id='slider-output-container'),
-    html.Div(content)
   ])
 
   return layout
 
 
+def navbar_view():
+  return dbc.NavbarSimple(
+    brand="Lumi",
+    brand_href="#",
+    color="primary",
+    dark=True,
+    id='navbar',
+  )
+
+
+def sidebar_view():
+  collapse_button = html.Button(
+    html.Span("Collapse"),
+    id="sidebar-toggle",
+  )
+  slider_ele = html.Div(
+    [html.H3('Smoother'),
+     dcc.Slider(id='my-slider', min=0, max=1, step=0.01)])
+
+  return html.Nav(
+    [
+      html.Ul(
+        [
+          html.Li(collapse_button, className='nav-item'),
+          html.Li(slider_ele, className='nav-item'),
+        ],
+        className='navbar-nav',
+      ),
+    ],
+    className='navbar',
+    id="sidebar",
+  )
+
+
+def content_view(content):
+  content_ele = html.Div(content)
+  return html.Div([content_ele], id='content-container')
+
+
 def line_smooth(smooth, fig):
   window = int(smooth * 49) + 1
-
-  y = fig['data'][0]['y']
-  df = pd.Series(y)
+  df = pd.Series(fig['data'][0]['y'])
   y = df.rolling(window, min_periods=1).mean()
-  y = y.to_numpy()
-  fig['data'][0]['y'] = y
+  fig['data'][0]['y'] = y.to_numpy()
   return fig
 
 
+def init_callbacks(app):
+  @app.callback(
+    Output("sidebar", "className"),
+    [Input("sidebar-toggle", "n_clicks")],
+    [State("sidebar", "className")],
+  )
+  def toggle_classname(n, classname):
+    if not classname:
+      return "collapsed"
+    return ""
+
+
 def main():
-  external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
   app = Dash(__name__,
-             external_stylesheets=external_stylesheets,
+             external_stylesheets=[dbc.themes.BOOTSTRAP],
              prevent_initial_callbacks=True)
   # app.layout = serve_layout
   app.layout = serve_layout(app)
+  init_callbacks(app)
   print('STARTING SERVER')
   app.run_server(debug=True)
 
 
 if __name__ == '__main__':
   main()
-
-# Vision 1
-# Starts lumi --path=outputdir
-# Visit browser and see 'empty' server
-# Starts train.py, send all info
-# Visit browser, see new experiment there with all data
-# Starts new train.py, all that information also shows up
-# Problem is that if we serialize the dash-app, that correspond to one experiment and we can only see one exp at a time. Maybe we can serialize only the callbacks but if the callbacks are dependent on external functions those also need to be serialized which wont work.
-
-# Vision 2
-# Log data and text-descriptions from train.py
-# Interpret data, create callbacks etc and start server
-# Check for changes in .lumi files. Add new data / callacks. Restart server if nessessary
-# Allow user to start server with custom callbacks.
-
-# Facts: Need to restart dash-server if new callbacks are logged

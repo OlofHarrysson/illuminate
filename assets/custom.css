@@ -1,0 +1,161 @@
+/* Uncomment to see the border-sizes of components */
+/* div {
+  border: 1px dotted blue;
+} */
+
+body {
+  background-color: #f2f2f2;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 20px;
+}
+
+.card {
+  background-color: #f9f9f9;
+  position: relative;
+  box-shadow: 2px 2px 2px lightgrey;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  margin-top: 0.25rem;
+  text-align: center;
+  color: #999;
+}
+
+/* Ạdds some top padding to all sliders. Bottom and side padding is added by default to wrapping div */
+.rc-slider {
+  padding-top: 10px
+}
+
+
+#navbar {
+  height: 5rem;
+}
+
+
+/* Sidebar */
+/* #sidebar h2 {
+  text-align: left;
+  margin-bottom: 0;
+}
+
+#collapse *:first-child {
+  margin-top: 1rem;
+}
+
+#content-container {
+  padding: 2rem 1rem;
+}
+
+#sidebar {
+  position: fixed;
+  top: 5rem;
+  left: 0;
+  bottom: 0;
+  width: 15rem;
+  text-align: left;
+  padding: 2rem 1rem;
+  background-color: #f8f9fa;
+  transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+#sidebar-toggle {
+  display: inline-block;
+  position: relative;
+  top: 0;
+  transition: top 0.3s ease-in-out;
+} */
+
+/* add negative margin to sidebar to achieve the collapse */
+/* #sidebar.collapsed {
+  margin-left: -5.5rem;
+  padding-right: 0.5rem;
+} */
+
+/* move the sidebar toggle up to the top left corner */
+/* #sidebar.collapsed #sidebar-toggle {
+  top: -2rem;
+} */
+
+/* also adjust margin of page content */
+/* #sidebar.collapsed~#page-content {
+  margin-left: 6.5rem;
+} */
+
+/* move all contents of sidebar other than header (containing toggle) further
+     off-screen */
+/* #sidebar.collapsed>*:not(:first-child) {
+  margin-left: -6rem;
+  margin-right: 6rem;
+} */
+
+
+/* #collapse {
+  display: block;
+} */
+
+/* #content-container {
+  margin-left: 15rem;
+  margin-right: 2rem;
+  transition: margin-left 0.3s ease-in-out;
+} */
+
+
+
+
+:root {
+  font-size: 16px;
+  font-family: 'Open Sans';
+  --text-primary: #b6b6b6;
+  --text-secondary: #ececec;
+  --bg-primary: #23232e;
+  --bg-secondary: #141418;
+  --transition-speed: 600ms;
+}
+
+.navbar {
+  position: fixed;
+  background-color: var(--bg-primary);
+  transition: width 600ms ease;
+  overflow: scroll;
+}
+
+.navbar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+/* Large screens */
+@media only screen and (min-width: 600px) {
+  .navbar {
+    top: 0;
+    width: 5rem;
+    height: 100vh;
+  }
+
+  .navbar:hover {
+    width: 15rem;
+  }
+}
+
+
+#content-container {
+  margin-left: 15rem;
+  margin-right: 2rem;
+  transition: margin-left 0.3s ease-in-out;
+}

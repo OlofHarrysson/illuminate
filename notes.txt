@@ -1,21 +1,14 @@
-Start with empty one page app with a few controls at top
-You can select one (or more experiments) from a dropdown / regex.
-You can switch views by some tab mechanic. (or dropdown?)
+Navbar at top. Includes some basic controlls like select one (or more experiments) from a dropdown / regex. Also tabs for different views.
+Collapsable sidebar to left with user controlls. Each control connects to one or more graphs, but can apply functions per graph.
 
-The view should have a layout, even if it's minimum. Each layout componenent can take data-content.
+Controlls:
+Time control: Slider with two knobs - start and stop.
+Fig graph smoother: Slider
 
-Create a few common views - like scalar and images. Ability to create own, and share it.
 
-(might not be needed - dynamic layout is possible)
 from within a train.py script - log data to illuminator. Illuminator checks wheter a new view or component to view is added. If so, it rebuilds the layout and starts the dash app again.
 
-
-
-Start dash in separate terminal. Only takes simple commands such as port, etc. This is because you want to look at the dashboard after training has completed.
-
-
 Streaming data to flask vs saving file
-
 Streaming data is quicker and doesn't bloat disk space if data is large
 Saving file seems easier and allows for more complex features?
 
