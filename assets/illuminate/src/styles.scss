@@ -1,0 +1,99 @@
+$primary-color: #f9f9f9;
+$primary-color-dark: darken($primary-color, 40%);
+$secondary-color: #23232e;
+$font-size: 16px;
+
+:root {
+  font-size: $font-size;
+  font-family: 'Open Sans';
+  --transition-speed: 600ms;
+}
+
+body {
+  background-color: $primary-color;
+}
+
+.card {
+  background-color: $primary-color;
+  position: relative;
+  filter: drop-shadow(2px 2px 2px $primary-color-dark);
+  margin-bottom: 5px;
+  padding: 2px;
+}
+
+.dark {
+  background-color: $secondary-color;
+  filter: none;
+  border: none;
+}
+
+.inactive {
+  display: none
+}
+
+.card-title {
+  margin-top: 0.25rem;
+  text-align: center;
+  color: #999;
+}
+
+/* Ạdds some top padding to all sliders. Bottom and side padding is added by default to wrapping div */
+.rc-slider {
+  padding-top: 10px
+}
+
+
+.sidebar {
+  position: fixed;
+  background-color: $secondary-color;
+  transition: width 600ms ease;
+  overflow: scroll;
+  top: 5rem;
+  width: 15rem;
+  height: 100vh;
+}
+
+.collapsed {
+  width: 5rem;
+}
+
+.expanded-content {
+  /* TODO: Remove important. Would be nice to create the sidebar as a react component */
+  margin-left: 5rem !important;
+}
+
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-item {
+  width: 100%;
+
+  .nav-span {
+    padding-left: 1rem;
+    font-size: $font-size * 2.5;
+  }
+}
+
+#content-container {
+  margin-left: 15rem;
+  margin-right: 2rem;
+  transition: margin-left 600ms ease;
+}
+
+
+#header-navbar {
+  height: 5rem;
+  display: flex;
+  background-color: $primary-color-dark;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

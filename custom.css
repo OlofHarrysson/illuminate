@@ -1,0 +1,99 @@
+/* Uncomment to see the border-sizes of components */
+/* div {
+  border: 1px dotted blue;
+} */
+
+:root {
+  font-size: 16px;
+  font-family: 'Open Sans';
+  /* --text-primary: #23232e; */
+  /* --text-secondary: #141418; */
+  --bg-primary: #f9f9f9;
+  --bg-primary-dark: var(--bg-primary);
+
+
+  --bg-secondary: #23232e;
+  --bg-dark: #23232e;
+  --bg-red: red;
+  --transition-speed: 600ms;
+}
+
+body {
+  background-color: var(--bg-primary);
+  /* background-color: #f2f2f2; */
+}
+
+
+.card {
+  background-color: var(--bg-primary);
+  position: relative;
+  /* box-shadow: 2px 2px 2px lightgrey; */
+  /* filter: blur(20px); */
+  /* filter: drop-shadow(2px 2px 2px var(--bg-red)); */
+  filter: drop-shadow(2px 2px 2px var(--bg-primary-dark));
+  /* box-shadow: 2px 2px 2px lightgrey; */
+  margin-bottom: 5px;
+  padding: 2px;
+}
+
+.dark {
+  /* background-color: var(--bg-dark); */
+  /* background-color: darken(var(--bg-primary), 50); */
+  /* filter: brightness(50%); */
+}
+
+.card-title {
+  margin-top: 0.25rem;
+  text-align: center;
+  color: #999;
+}
+
+/* Ạdds some top padding to all sliders. Bottom and side padding is added by default to wrapping div */
+.rc-slider {
+  padding-top: 10px
+}
+
+
+#navbar-header {
+  height: 5rem;
+}
+
+.sidebar {
+  position: fixed;
+  background-color: var(--bg-secondary);
+  transition: width 600ms ease;
+  overflow: scroll;
+  top: 5rem;
+  width: 15rem;
+  height: 100vh;
+}
+
+.collapsed {
+  width: 5rem;
+}
+
+.expanded-content {
+  /* TODO: Remove important. Would be nice to create the sidebar as a react component */
+  margin-left: 5rem !important;
+}
+
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+#content-container {
+  margin-left: 15rem;
+  margin-right: 2rem;
+  transition: margin-left 600ms ease;
+}

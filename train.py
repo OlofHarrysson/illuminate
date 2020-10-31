@@ -18,6 +18,7 @@ def main():
 
   logger.log_line(x, y, 'scatter1')
   logger.log_line(x, y, 'scatter2')
+  logger.log_line(x, y, 'scatter3')
 
 
 class LumiLogger:
@@ -27,19 +28,15 @@ class LumiLogger:
 
     outdir.mkdir(exist_ok=True)
     self.outdir = outdir
-    self.index_file = outdir / 'meta.lumi.csv'
-    self.index = pd.DataFrame()
+    self.index_file = outdir / 'meta.lumi.json'
+    self.index = {}
 
-  def update_index_file(self, ele_id, path):
-    row = dict(
-      ele_id=ele_id,
-      data_path=path,
-      graph_type='scatter',
-      last_modified=datetime.now(),
-      callback_function='lumi.smoothing',
-    )
-    self.index = self.index.append(row, ignore_index=True)
-    self.index.to_csv(self.index_file)
+  def update_index_file(self, entry):
+    self.index[entry['ele_id']] = entry
+    with open(self.index_file, 'w') as f:
+      json.dump(self.index, f, indent=2)
+    # self.index = self.index.append(row, ignore_index=True)
+    # self.index.to_csv(self.index_file, index=False)
 
   def log_line(self, x, y, ele_id):
     df = pd.DataFrame(dict(y=y))
@@ -49,7 +46,18 @@ class LumiLogger:
     fig = px.line(df)
     pio.write_json(fig, str(path))
 
-    self.update_index_file(ele_id, path)
+    row = dict(
+      ele_id=ele_id,
+      window_id=['main', 'images'],  # Or images, or both etc
+      data_path=str(path),
+      # graph_type='scatter',
+      last_modified=str(datetime.now()),
+      callback_function_map='lumi-smoothing',
+    )
+    if ele_id == 'scatter1' or ele_id == 'scatter3':
+      del row['callback_function_map']
+
+    self.update_index_file(row)
 
 
 if __name__ == '__main__':

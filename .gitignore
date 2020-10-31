@@ -1,1 +1,6 @@
 output/
+
+# What is this?
+file_system_store/
+assets/font-awesome/
+node_modules/
