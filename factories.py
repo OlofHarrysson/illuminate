@@ -35,16 +35,22 @@ class FunctionFactory:
 
 
 class ControlFactory:
-  slider_id = 'lumi-smoothing-controller'
-  ss = dcc.Slider(id=slider_id, min=0, max=1, step=0.01)
-  slider_ele = make_controller_card(ss, 'Smoother')
+  smoother_id = 'lumi-smoothing-controller'
+  smoother = dcc.Slider(id=smoother_id, min=0, max=1, step=0.01)
+  smoother_ele = make_controller_card(smoother, 'Smoother')
+
+  time_control_id = 'lumi-time-controller'
+  time_control = dcc.Slider(id=time_control_id, min=0, max=1, step=0.01)
+  time_control_ele = make_controller_card(time_control, 'Time')
 
   controls_map = {
-    'lumi-smoothing': slider_ele,
+    'lumi-smoothing': smoother_ele,
+    'lumi-time-controller': time_control_id,
   }
 
   callb_map = {
-    'lumi-smoothing': slider_id,
+    'lumi-smoothing': smoother_id,
+    'lumi-time-controller': time_control_ele,
   }
 
   @classmethod

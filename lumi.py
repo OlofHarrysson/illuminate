@@ -35,11 +35,6 @@ def make_view_card(content, title, fig_id, win_ids):
   )
 
 
-# TODO: Click on view, find all cards,
-# Goal, set either active/not active on the cards.
-# Need to get information of what views a card is connected to
-
-
 def navbar_view(win_ids):
   options = [dict(label=win_id, value=win_id) for win_id in win_ids]
   view_dropdown = html.Div(
@@ -70,17 +65,20 @@ def navbar_view(win_ids):
   return navbar
 
 
-def sidebar_view(controls):
-  # TODO: Allow controls outside of sidebar?
-  collapse = html.A(
-    html.I(className='fas fa-angle-double-right fa-5x'),
-    href='#',
-    className='nav-link',
-    id='sidebar-toggle',
-  )
+def sidebar_view(raw_controls):
+  collapse = html.Li(
+    html.A(
+      html.I(className='fas fa-angle-double-right fa-5x'),
+      href='#',
+      className='nav-link',
+      id='sidebar-toggle',
+    ))
 
-  controls = [html.Li(c, className='nav-item') for c in controls.values()]
-  controls.insert(0, collapse)
+  controls = [collapse]
+  for c_id, control in raw_controls.items():
+    c = html.Div(control, id={'type': 'controller', 'id': c_id})
+    c = html.Li(c, className='nav-item')
+    controls.append(c)
 
   controls_list = html.Ul(controls, className='sidebar-list')
   return html.Nav(controls_list, className='sidebar', id='sidebar')
@@ -139,7 +137,6 @@ def create_index(lumi_path):
     fig.update_layout(autosize=False, width=1200, height=200)
     jitem['figure'] = fig
     ele_id = jitem['ele_id']
-    win_ids = jitem['window_id']
 
     if 'callback_function_map' in jitem:
       callback_id = jitem['callback_function_map']
@@ -194,3 +191,4 @@ if __name__ == '__main__':
 
 # TODO: Allow to add elements to layout e.g. controllers
 # TODO: How to solve multiple controllers for one element?
+# TODO: Specify layout within a view. Size of cards, position etc. Preferably via a GUI

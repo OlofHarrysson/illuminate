@@ -6,28 +6,34 @@ def init_callbacks(app):
   @app.callback(
     Output('sidebar', 'className'),
     Output('content-container', 'className'),
+    Output({
+      'type': 'controller',
+      'id': ALL
+    }, 'className'),
     Input('sidebar-toggle', 'n_clicks'),
     State('sidebar', 'className'),
+    State({
+      'type': 'controller',
+      'id': ALL
+    }, 'className'),
   )
-  def toggle_classname(n, classname):
+  def toggle_classname(n, classname, ctrl_classname):
     # TODO: Make it collapsable some other way?
     if 'collapsed' in classname:
       classname = classname.replace('collapsed', '')
       classname2 = ''
+      ctrl_classname = ['active-control'] * len(ctrl_classname)
     else:
       classname = ' '.join([classname, 'collapsed'])
       classname2 = 'expanded-content'
-    return classname, classname2
+      ctrl_classname = ['inactive-control'] * len(ctrl_classname)
+    return classname, classname2, ctrl_classname
 
   @app.callback(
     Output({
       'type': 'card-view',
       'views': ALL
     }, 'className'),
-    # Input({
-    #   'type': 'card-button',
-    #   'index': ALL
-    # }, 'n_clicks_timestamp'),
     Input('view-dropdown', 'value'),
     State({
       'type': 'card-button',
@@ -44,7 +50,7 @@ def init_callbacks(app):
       if active_view in graph_id['views']:
         actives.append('')
       else:
-        actives.append('inactive')
+        actives.append('inactive-graph')
 
     return actives
 

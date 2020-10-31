@@ -17,8 +17,8 @@ def main():
   y = np.random.random(n_points)
 
   logger.log_line(x, y, 'scatter1')
-  logger.log_line(x, y, 'scatter2')
-  logger.log_line(x, y, 'scatter3')
+  logger.log_line(x, y, 'scatter2', ['main'])
+  logger.log_line(x, y, 'scatter3', ['main', 'images'])
 
 
 class LumiLogger:
@@ -38,7 +38,10 @@ class LumiLogger:
     # self.index = self.index.append(row, ignore_index=True)
     # self.index.to_csv(self.index_file, index=False)
 
-  def log_line(self, x, y, ele_id):
+  def log_line(self, x, y, ele_id, views=None):
+    if views is None:
+      views = ['everything']
+
     df = pd.DataFrame(dict(y=y))
     path = self.outdir / f'{ele_id}.json'
     # df.to_json(path)
@@ -48,11 +51,11 @@ class LumiLogger:
 
     row = dict(
       ele_id=ele_id,
-      window_id=['main', 'images'],  # Or images, or both etc
+      window_id=views,
       data_path=str(path),
-      # graph_type='scatter',
       last_modified=str(datetime.now()),
       callback_function_map='lumi-smoothing',
+      # callback_function_map=['lumi-smoothing', 'lumi-time-controller'],
     )
     if ele_id == 'scatter1' or ele_id == 'scatter3':
       del row['callback_function_map']
