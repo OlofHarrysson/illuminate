@@ -12,7 +12,7 @@ from datetime import datetime
 def main():
   outdir = Path('output/exp')
   logger = LumiLogger(outdir)
-  n_points = 50
+  n_points = 500
   x = np.linspace(0, n_points - 1, n_points)
   y = np.random.random(n_points)
 
@@ -51,14 +51,14 @@ class LumiLogger:
 
     row = dict(
       ele_id=ele_id,
-      window_id=views,
+      view_ids=views,
       data_path=str(path),
       last_modified=str(datetime.now()),
-      callback_function_map='lumi-smoothing',
-      # callback_function_map=['lumi-smoothing', 'lumi-time-controller'],
+      # callback_function_map='lumi-smoothing',
+      callback_function_map=['lumi-smoothing', 'lumi-time-controller'],
     )
-    if ele_id == 'scatter1' or ele_id == 'scatter3':
-      del row['callback_function_map']
+    if ele_id == 'scatter1':
+      row['callback_function_map'] = []
 
     self.update_index_file(row)
 

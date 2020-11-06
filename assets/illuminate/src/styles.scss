@@ -2,11 +2,18 @@ $primary-color: #f9f9f9;
 $primary-color-dark: darken($primary-color, 40%);
 $secondary-color: #23232e;
 $font-size: 16px;
+$transition-time: 500ms;
+$card_distance: 5px;
+$card_padding: 2px;
+
+// Uncomment to see divs
+// div {
+//   border: 1px dotted;
+// }
 
 :root {
   font-size: $font-size;
   font-family: 'Open Sans';
-  --transition-speed: 600ms;
 }
 
 
@@ -15,12 +22,67 @@ body {
 }
 
 .card {
-  background-color: $primary-color;
-  position: relative;
-  filter: drop-shadow(2px 2px 2px $primary-color-dark);
-  margin-bottom: 5px;
-  padding: 2px;
+  // filter: drop-shadow(2px 2px 2px $primary-color-dark);
+  // margin-bottom: $card_distance;
+  padding: $card_padding;
 }
+
+.react-grid-layout {
+  .react-grid-item {
+    filter: drop-shadow(2px 2px 2px $primary-color-dark);
+    transform: translate(20px, 20px);
+
+    .react-resizable-handle {
+      background: unset;
+      height: unset;
+      width: unset;
+      bottom: $font-size - 3px;
+      right: $font-size - 1px;
+      color: $primary-color-dark;
+      padding: 0;
+      transform: scaleX(-1);
+
+      // fa-large
+      font-size: 1.33333em;
+      line-height: 1em;
+      vertical-align: -.0667em;
+
+      &:before {
+        content: "\f424"; // Expand arrow. https://fontawesome.com/cheatsheet?from=io
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+
+        // font-size: 1em;
+        // line-height: 0.75em;
+        // vertical-align: -.0667em;
+      }
+
+      &:hover {
+        color: $secondary-color;
+      }
+    }
+  }
+}
+
+.view-card {
+  display: inline-flex;
+}
+
+.graph-controls {
+  position: fixed;
+  bottom: 0.8rem;
+  right: 2rem;
+
+  .control-item {
+    color: $primary-color-dark;
+    padding-right: 0.5rem;
+
+    &:hover {
+      color: $secondary-color;
+    }
+  }
+}
+
 
 .dark {
   background-color: $secondary-color;
@@ -32,27 +94,11 @@ body {
   display: none;
 }
 
-.inactive-control {
-  transform: translate(-500px);
-  opacity: 0;
-  transition: transform 2s, opacity 600ms;
-}
-
-.active-control {
-  opacity: 1;
-  transition: opacity 300ms ease-in 300ms;
-}
-
-.card-title {
-  margin-top: 0.25rem;
-  text-align: center;
-  color: #999;
-}
 
 .sidebar {
   position: fixed;
   background-color: $secondary-color;
-  transition: width 600ms ease;
+  transition: width $transition-time ease;
   overflow: scroll;
   top: 5rem;
   width: 15rem;
@@ -77,13 +123,17 @@ body {
   flex-direction: column;
   align-items: center;
   height: 100%;
+}
 
-  .nav-item {
-    // transform: translate(-50px);
-    // transition: none;
-    opacity: 1;
-    transition: opacity 2s;
-  }
+.inactive-control {
+  transform: translate(-500px);
+  opacity: 0;
+  transition: transform 2s, opacity $transition-time;
+}
+
+.active-control {
+  opacity: 1;
+  transition: opacity $transition-time/2 ease-in $transition-time/2;
 }
 
 .nav-item {
@@ -97,8 +147,11 @@ body {
 
 #content-container {
   margin-left: 15rem;
-  margin-right: 2rem;
-  transition: margin-left 600ms ease;
+  padding: 10px;
+  margin-right: $card_distance;
+  transition: margin-left $transition-time ease;
+  // display: flex;
+  // flex-wrap: wrap;
 }
 
 

@@ -1,5 +1,5 @@
 # import dash
-
+import dash_responsive_grid_layout as drgl
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -16,22 +16,50 @@ from pathlib import Path
 import numpy as np
 from callbacks import init_callbacks
 import plotly_styles
-from factories import CallbackFactory, FunctionFactory, ControlFactory
+from factories import CallbackFactory, FunctionFactory, ControlFactory, create_callback_function
 
 
-def make_view_card(content, title, fig_id, win_ids):
+def make_view_card(content, title, fig_id, view_ids):
+  header = html.Div(
+    [
+      html.H4(title, className='draggable'),
+      html.I(className='fas fa-pizza-slice fa-2x'),
+    ],
+    className='card-header',
+  )
+
+  controls = html.Div(
+    [
+      html.I(className='fas fa-pizza-slice fa-lg control-item'),
+      html.I(className='fas fa-arrows-alt fa-lg control-item draggable'),
+      # html.Span(html.I(className='fas fa-pizza-slice fa-2x ontop')),
+      # html.Span(html.I(className='fas fa-pizza-slice fa-2x ontop')),
+    ],
+    className='graph-controls',
+  )
+
+  resize = html.Span(
+    html.I(className='fas fa-expand-arrows-alt draggable-resize'),
+    className='react-resizable-handle',
+  )
+
+  content = html.Div(content, className='graph-wrapper')
+
   return dbc.Card(
     [
-      html.H4(title, className='card-title'),
-      html.Div(content),
+      content,
+      controls,
+      # header,
+      # resize,
     ],
     body=True,
-    id={
-      'type': 'card-view',
-      # 'graph-id': fig_id, # TODO: Callback doesnt fire with this
-      'views': f"{' '.join(win_ids)} {fig_id}"
-    },
-    className='',
+    className='view-card',
+    id=f"{' '.join(view_ids)} {fig_id}",
+    # id={
+    #   'type': 'card-view',
+    #   # 'graph-id': fig_id, # TODO: Callback doesnt fire with this
+    #   'views': f"{' '.join(view_ids)} {fig_id}"
+    # },
   )
 
 
@@ -75,9 +103,8 @@ def sidebar_view(raw_controls):
     ))
 
   controls = [collapse]
-  for c_id, control in raw_controls.items():
-    c = html.Div(control, id={'type': 'controller', 'id': c_id})
-    c = html.Li(c, className='nav-item')
+  for control in raw_controls:
+    c = html.Li(control, className='nav-item')
     controls.append(c)
 
   controls_list = html.Ul(controls, className='sidebar-list')
@@ -85,43 +112,60 @@ def sidebar_view(raw_controls):
 
 
 def content_view(content):
-  content_ele = html.Div(content)
-  return html.Div(content_ele, id='content-container')
+  cols = {'lg': 12}
+  breakpoints = {'lg': 2200}
+
+  layouts = []
+  width = 4
+  for idx, ele in enumerate(content):
+    item = dict(i=ele.id, x=idx * width, y=0, w=width, h=width * 2)
+    layouts.append(item)
+  layouts = {'lg': layouts}
+
+  grid_layout = drgl.ResponsiveGridLayout(
+    content,
+    id='grid-layout',
+    cols=cols,
+    layouts=layouts,
+    breakpoints=breakpoints,
+    draggableHandle='.draggable',
+    rowHeight=50,
+    autoSize=True,
+    margin=[0, 0, 0, 0],
+    # width=500,
+  )
+  return html.Div(grid_layout, id='content-container')
+  # return html.Div(content, id='content-container')
 
 
-def serve_layout(app, index):
+def serve_layout(app, index, controls):
   content = []
-  controls = {}
-  window_ids = set()
-  for _, item in index.items():
-    fig = item['figure']
+  all_view_ids = set()
+  for name, item in index.items():
+    fig = item['graph']
 
     # Add layout
-    name = item['ele_id']
-    win_ids = item['window_id']
-    window_ids.update(win_ids)
-    fig_id = f'{name}-graph'
-    card = make_view_card(dcc.Graph(id=fig_id, figure=fig), name, fig_id,
-                          win_ids)
+    view_ids = item['view_ids']
+    all_view_ids.update(view_ids)
+    fig_id = f'{name}'
+
+    # style = {'height': '100%'}
+    # graph = dcc.Graph(id=fig_id, figure=fig, style=style)
+    graph = dcc.Graph(id=fig_id, figure=fig)
+    card = make_view_card(graph, name, fig_id, view_ids)
     content.append(card)
 
-    if 'callback_function' in item:
-      store_id = f'{name}-store'
-      content.append(dcc.Store(id=store_id, data=fig))
-      callb_args = item['callback_args']
-      func = item['callback_function']
+    if item['callback_list']:
+      callb_args = CallbackFactory.get_item(name)
       callb = app.callback(callb_args)
+      func = create_callback_function(index)
       callb(func)
-
-      control_id, control = item['control']
-      controls[control_id] = control
 
   print('SERVING LAYOUT')
   layout = html.Div(children=[
     sidebar_view(controls),
-    navbar_view(window_ids),
+    navbar_view(all_view_ids),
     content_view(content),
-    html.Div(id='todo')
   ])
 
   return layout
@@ -131,44 +175,37 @@ def create_index(lumi_path):
   with open(lumi_path) as f:
     index = json.load(f)
 
+  main = {}
   for jitem in index.values():
+    ele_id = jitem['ele_id']
     fig = pio.read_json(jitem.pop('data_path'))
     fig.update_layout(plotly_styles.base_layout())
-    fig.update_layout(autosize=False, width=1200, height=200)
+    # fig.update_layout(title=dict(text=ele_id, xanchor='center'))
+    fig.update_layout(title={
+      'text': ele_id.title(),
+      'x': 0.5,
+      'xanchor': 'center',
+    })
+
     jitem['figure'] = fig
-    ele_id = jitem['ele_id']
+    # fig.update_layout(autosize=True)
+    # fig.update_layout(autosize=False, width=200, height=200)
+    # fig.update_layout(autosize=True, width=500, height=500)
+    # fig = 'fig'  # TODO
 
-    if 'callback_function_map' in jitem:
-      callback_id = jitem['callback_function_map']
-      callb_args = CallbackFactory.get_item(ele_id, callback_id)
-      control_id, control = ControlFactory.get_item(callback_id)
-      cb_func = FunctionFactory.get_item(callback_id)
-      jitem['callback_args'] = callb_args
-      jitem['control'] = (control_id, control)
-      jitem['callback_function'] = cb_func
+    callback_list = []
+    for callback_id in jitem['callback_function_map']:
+      func = FunctionFactory.get_item(callback_id)
+      func_args = [fig, ControlFactory.get_id(callback_id)]
+      callb_item = dict(function=func, function_args=func_args)
+      callback_list.append(callb_item)
 
-  return index
+    item = dict(graph=fig,
+                callback_list=callback_list,
+                view_ids=jitem['view_ids'])
+    main[ele_id] = item
 
-
-def user_add_index(index):
-  def double(smooth, fig):
-    fig['data'][0]['y'] = np.array(fig['data'][0]['y']) * smooth
-    return fig
-
-  scatter2 = copy.deepcopy(index['scatter2'])
-  ele_id = 'scatter5'
-  scatter2['ele_id'] = ele_id
-  win_id = scatter2['window_id'][0]
-  scatter2['window_id'] = [win_id]
-
-  scatter2['callback_function'] = double
-  callback_args = scatter2['callback_args'][win_id]
-  callback_args[0] = Output(f'{ele_id}-{win_id}-graph', 'figure')
-  callback_args[-1] = State(f'{ele_id}-{win_id}-store', 'data')
-  scatter2['callback_args'] = {win_id: callback_args}
-  index[ele_id] = scatter2
-
-  return index
+  return main
 
 
 def main():
@@ -178,9 +215,11 @@ def main():
 
   lumi_path = 'output/exp/meta.lumi.json'
   index = create_index(lumi_path)
-  # index = user_add_index(index)
 
-  app.layout = serve_layout(app, index)
+  # Get the controllers that are used.
+  controls = ControlFactory.get_controllers()
+
+  app.layout = serve_layout(app, index, controls)
   init_callbacks(app)
   print('STARTING SERVER')
   app.run_server(debug=True)
@@ -189,6 +228,4 @@ def main():
 if __name__ == '__main__':
   main()
 
-# TODO: Allow to add elements to layout e.g. controllers
-# TODO: How to solve multiple controllers for one element?
 # TODO: Specify layout within a view. Size of cards, position etc. Preferably via a GUI

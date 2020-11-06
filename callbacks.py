@@ -7,13 +7,13 @@ def init_callbacks(app):
     Output('sidebar', 'className'),
     Output('content-container', 'className'),
     Output({
-      'type': 'controller',
+      'type': 'controller-container',
       'id': ALL
     }, 'className'),
     Input('sidebar-toggle', 'n_clicks'),
     State('sidebar', 'className'),
     State({
-      'type': 'controller',
+      'type': 'controller-container',
       'id': ALL
     }, 'className'),
   )
@@ -29,30 +29,30 @@ def init_callbacks(app):
       ctrl_classname = ['inactive-control'] * len(ctrl_classname)
     return classname, classname2, ctrl_classname
 
-  @app.callback(
-    Output({
-      'type': 'card-view',
-      'views': ALL
-    }, 'className'),
-    Input('view-dropdown', 'value'),
-    State({
-      'type': 'card-button',
-      'index': ALL
-    }, 'id'),
-    State({
-      'type': 'card-view',
-      'views': ALL
-    }, 'id'),
-  )
-  def toggle_classname(active_view, view_ids, graph_ids):
-    actives = []
-    for graph_id in graph_ids:
-      if active_view in graph_id['views']:
-        actives.append('')
-      else:
-        actives.append('inactive-graph')
+  # @app.callback(
+  #   Output({
+  #     'type': 'card-view',
+  #     'views': ALL
+  #   }, 'className'),
+  #   Input('view-dropdown', 'value'),
+  #   State({
+  #     'type': 'card-button',
+  #     'index': ALL
+  #   }, 'id'),
+  #   State({
+  #     'type': 'card-view',
+  #     'views': ALL
+  #   }, 'id'),
+  # )
+  # def toggle_classname(active_view, view_ids, graph_ids):
+  #   actives = []
+  #   for graph_id in graph_ids:
+  #     if active_view in graph_id['views']:
+  #       actives.append('')
+  #     else:
+  #       actives.append('inactive-graph')
 
-    return actives
+  #   return actives
 
 
 # TODO

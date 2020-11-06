@@ -1,17 +1,47 @@
 :root {
   font-size: 16px;
-  font-family: 'Open Sans';
-  --transition-speed: 600ms; }
+  font-family: 'Open Sans'; }
 
 body {
   background-color: #f9f9f9; }
 
 .card {
-  background-color: #f9f9f9;
-  position: relative;
-  filter: drop-shadow(2px 2px 2px #939393);
-  margin-bottom: 5px;
   padding: 2px; }
+
+.react-grid-layout .react-grid-item {
+  filter: drop-shadow(2px 2px 2px #939393);
+  transform: translate(20px, 20px); }
+  .react-grid-layout .react-grid-item .react-resizable-handle {
+    background: unset;
+    height: unset;
+    width: unset;
+    bottom: 13px;
+    right: 15px;
+    color: #939393;
+    padding: 0;
+    transform: scaleX(-1);
+    font-size: 1.33333em;
+    line-height: 1em;
+    vertical-align: -.0667em; }
+    .react-grid-layout .react-grid-item .react-resizable-handle:before {
+      content: "\f424";
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900; }
+    .react-grid-layout .react-grid-item .react-resizable-handle:hover {
+      color: #23232e; }
+
+.view-card {
+  display: inline-flex; }
+
+.graph-controls {
+  position: fixed;
+  bottom: 0.8rem;
+  right: 2rem; }
+  .graph-controls .control-item {
+    color: #939393;
+    padding-right: 0.5rem; }
+    .graph-controls .control-item:hover {
+      color: #23232e; }
 
 .dark {
   background-color: #23232e;
@@ -21,24 +51,10 @@ body {
 .inactive-graph {
   display: none; }
 
-.inactive-control {
-  transform: translate(-500px);
-  opacity: 0;
-  transition: transform 2s, opacity 600ms; }
-
-.active-control {
-  opacity: 1;
-  transition: opacity 300ms ease-in 300ms; }
-
-.card-title {
-  margin-top: 0.25rem;
-  text-align: center;
-  color: #999; }
-
 .sidebar {
   position: fixed;
   background-color: #23232e;
-  transition: width 600ms ease;
+  transition: width 500ms ease;
   overflow: scroll;
   top: 5rem;
   width: 15rem;
@@ -59,9 +75,15 @@ body {
   flex-direction: column;
   align-items: center;
   height: 100%; }
-  .sidebar-list .nav-item {
-    opacity: 1;
-    transition: opacity 2s; }
+
+.inactive-control {
+  transform: translate(-500px);
+  opacity: 0;
+  transition: transform 2s, opacity 500ms; }
+
+.active-control {
+  opacity: 1;
+  transition: opacity 250ms ease-in 250ms; }
 
 .nav-item {
   width: 100%; }
@@ -71,8 +93,9 @@ body {
 
 #content-container {
   margin-left: 15rem;
-  margin-right: 2rem;
-  transition: margin-left 600ms ease; }
+  padding: 10px;
+  margin-right: 5px;
+  transition: margin-left 500ms ease; }
 
 #header-navbar {
   height: 5rem;
