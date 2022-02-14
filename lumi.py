@@ -17,49 +17,33 @@ import numpy as np
 from callbacks import init_callbacks
 import plotly_styles
 from factories import CallbackFactory, FunctionFactory, ControlFactory, create_callback_function
+import components
 
 
 def make_view_card(content, title, fig_id, view_ids):
-  header = html.Div(
-    [
-      html.H4(title, className='draggable'),
-      html.I(className='fas fa-pizza-slice fa-2x'),
-    ],
-    className='card-header',
-  )
 
+  modal_control = html.A(
+    html.I(className='fas fa-expand fa-lg control-item'),
+    href='#',
+    id=dict(type='controller-modal', id=fig_id),
+  )
   controls = html.Div(
     [
-      html.I(className='fas fa-pizza-slice fa-lg control-item'),
+      modal_control,
       html.I(className='fas fa-arrows-alt fa-lg control-item draggable'),
-      # html.Span(html.I(className='fas fa-pizza-slice fa-2x ontop')),
-      # html.Span(html.I(className='fas fa-pizza-slice fa-2x ontop')),
     ],
     className='graph-controls',
   )
-
-  resize = html.Span(
-    html.I(className='fas fa-expand-arrows-alt draggable-resize'),
-    className='react-resizable-handle',
-  )
-
-  content = html.Div(content, className='graph-wrapper')
 
   return dbc.Card(
     [
       content,
       controls,
-      # header,
-      # resize,
     ],
     body=True,
     className='view-card',
-    id=f"{' '.join(view_ids)} {fig_id}",
-    # id={
-    #   'type': 'card-view',
-    #   # 'graph-id': fig_id, # TODO: Callback doesnt fire with this
-    #   'views': f"{' '.join(view_ids)} {fig_id}"
-    # },
+    id=f'{fig_id}-card',
+    # id=f"{' '.join(view_ids)} {fig_id}",
   )
 
 
@@ -68,9 +52,9 @@ def navbar_view(win_ids):
   view_dropdown = html.Div(
     dcc.Dropdown(
       options=options,
-      placeholder="Select a view",
       clearable=False,
       id='view-dropdown',
+      value='everything',
     ),
     className='nav-item',
   )
@@ -82,9 +66,16 @@ def navbar_view(win_ids):
     ],
     className='nav-item',
   )
+
+  new_view_button = dbc.Button(
+    "Edit Views",
+    id="edit-views-button",
+    className='nav-item',
+  )
   navbar = html.Nav(
     [
       logo,
+      new_view_button,
       view_dropdown,
     ],
     id='header-navbar',
@@ -111,17 +102,28 @@ def sidebar_view(raw_controls):
   return html.Nav(controls_list, className='sidebar', id='sidebar')
 
 
-def content_view(content):
-  cols = {'lg': 12}
-  breakpoints = {'lg': 2200}
+def content_view(content, view_ids):
+  n_cols = 12
+  cols = {'lg': n_cols}
+  breakpoints = {'lg': 3200}
 
   layouts = []
   width = 4
+  n_graphs_x = n_cols / width
   for idx, ele in enumerate(content):
-    item = dict(i=ele.id, x=idx * width, y=0, w=width, h=width * 2)
-    layouts.append(item)
-  layouts = {'lg': layouts}
+    ele_id = ele.id
+    height = width * 2
 
+    x = idx % n_graphs_x * width
+    y = idx // n_graphs_x * height
+    item = dict(i=ele_id, x=x, y=y, w=width, h=height)
+    layouts.append(item)
+
+  layout_data = {wid: layouts for wid in view_ids}
+  store = dcc.Store(data=layout_data, id='layout-store')
+  # store = dcc.Store(data=layout_data, id='layout-store', storage_type='local')
+
+  layouts = {'lg': layouts}
   grid_layout = drgl.ResponsiveGridLayout(
     content,
     id='grid-layout',
@@ -134,8 +136,10 @@ def content_view(content):
     margin=[0, 0, 0, 0],
     # width=500,
   )
-  return html.Div(grid_layout, id='content-container')
-  # return html.Div(content, id='content-container')
+  return html.Div([
+    grid_layout,
+    store,
+  ], id='content-container'), layout_data
 
 
 def serve_layout(app, index, controls):
@@ -148,9 +152,8 @@ def serve_layout(app, index, controls):
     view_ids = item['view_ids']
     all_view_ids.update(view_ids)
     fig_id = f'{name}'
+    print(fig_id)
 
-    # style = {'height': '100%'}
-    # graph = dcc.Graph(id=fig_id, figure=fig, style=style)
     graph = dcc.Graph(id=fig_id, figure=fig)
     card = make_view_card(graph, name, fig_id, view_ids)
     content.append(card)
@@ -161,11 +164,29 @@ def serve_layout(app, index, controls):
       func = create_callback_function(index)
       callb(func)
 
+  graph_modal = dbc.Modal(
+    [
+      dcc.Graph(id='expanded-graph'),
+    ],
+    id='expanded-graph-modal',
+    size='xl',
+  )
+
+  content, layout = content_view(content, all_view_ids)
+  modal_placeholder = components.create_edit_view(layout, 'everything')
+  edit_views_modal = dbc.Modal(
+    modal_placeholder,
+    id='edit-views-modal',
+    size='xl',
+  )
+
   print('SERVING LAYOUT')
   layout = html.Div(children=[
     sidebar_view(controls),
     navbar_view(all_view_ids),
-    content_view(content),
+    content,
+    graph_modal,
+    edit_views_modal,
   ])
 
   return layout
@@ -180,17 +201,17 @@ def create_index(lumi_path):
     ele_id = jitem['ele_id']
     fig = pio.read_json(jitem.pop('data_path'))
     fig.update_layout(plotly_styles.base_layout())
-    # fig.update_layout(title=dict(text=ele_id, xanchor='center'))
-    fig.update_layout(title={
-      'text': ele_id.title(),
-      'x': 0.5,
-      'xanchor': 'center',
-    })
+    fig.update_layout(
+      title={
+        'text': ele_id.title(),
+        'x': 0.5,
+        'yanchor': 'top',
+        'font': {
+          'size': 22,
+        },
+      })
 
     jitem['figure'] = fig
-    # fig.update_layout(autosize=True)
-    # fig.update_layout(autosize=False, width=200, height=200)
-    # fig.update_layout(autosize=True, width=500, height=500)
     # fig = 'fig'  # TODO
 
     callback_list = []
@@ -220,7 +241,7 @@ def main():
   controls = ControlFactory.get_controllers()
 
   app.layout = serve_layout(app, index, controls)
-  init_callbacks(app)
+  init_callbacks(app, index)
   print('STARTING SERVER')
   app.run_server(debug=True)
 

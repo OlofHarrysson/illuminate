@@ -18,4 +18,4 @@ def base_layout():
 
 def margins(margin=0, pad=0):
   ''' Spacing for Plotly figure '''
-  return dict(l=margin, r=margin, t=30, b=margin, pad=pad)
+  return dict(l=margin, r=margin, t=40, b=margin, pad=pad)

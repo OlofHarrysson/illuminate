@@ -1,10 +1,12 @@
 $primary-color: #f9f9f9;
 $primary-color-dark: darken($primary-color, 40%);
+$body-color: #6495ED;
 $secondary-color: #23232e;
 $font-size: 16px;
 $transition-time: 500ms;
-$card_distance: 5px;
+$card_distance: 10px;
 $card_padding: 2px;
+$card-shadow: 2px;
 
 // Uncomment to see divs
 // div {
@@ -22,14 +24,12 @@ body {
 }
 
 .card {
-  // filter: drop-shadow(2px 2px 2px $primary-color-dark);
-  // margin-bottom: $card_distance;
   padding: $card_padding;
 }
 
 .react-grid-layout {
   .react-grid-item {
-    filter: drop-shadow(2px 2px 2px $primary-color-dark);
+    filter: drop-shadow($card-shadow $card-shadow $card-shadow $primary-color-dark);
     transform: translate(20px, 20px);
 
     .react-resizable-handle {
@@ -51,10 +51,6 @@ body {
         content: "\f424"; // Expand arrow. https://fontawesome.com/cheatsheet?from=io
         font-family: "Font Awesome 5 Free";
         font-weight: 900;
-
-        // font-size: 1em;
-        // line-height: 0.75em;
-        // vertical-align: -.0667em;
       }
 
       &:hover {
@@ -86,8 +82,13 @@ body {
 
 .dark {
   background-color: $secondary-color;
+  color: $primary-color;
   filter: none;
   border: none;
+}
+
+.card-title {
+  margin: auto;
 }
 
 .inactive-graph {
@@ -147,18 +148,20 @@ body {
 
 #content-container {
   margin-left: 15rem;
-  padding: 10px;
-  margin-right: $card_distance;
+  // padding: 10px;
+  padding: $card_distance $card-shadow $card_distance $card_distance;
+  // margin-right: $card_distance;
   transition: margin-left $transition-time ease;
+
+  // width: 100%;
   // display: flex;
-  // flex-wrap: wrap;
 }
 
 
 #header-navbar {
   height: 5rem;
   display: flex;
-  background-color: $primary-color-dark;
+  background-color: $body-color;
   align-items: center;
   padding-left: 1rem;
   padding-right: 1rem;

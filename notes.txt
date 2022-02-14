@@ -1,11 +1,8 @@
-Navbar at top. Includes some basic controlls like select one (or more experiments) from a dropdown / regex. Also tabs for different views.
-Collapsable sidebar to left with user controlls. Each control connects to one or more graphs, but can apply functions per graph.
 
 Controlls:
-Time control: Slider with two knobs - start and stop.
-Fig graph smoother: Slider
-An openable modal that says which controls goes to what graphs
-Open modal of a graph in "fullscreen". Maybe we can put export plot as image and stuff in here
+Time control: Slider with one knob - for looking through time
+An openable modal/popover that says which controls goes to what graphs
+Tooltip info logo next to each control
 
 from within a train.py script - log data to illuminator. Illuminator checks wheter a new view or component to view is added. If so, it rebuilds the layout and starts the dash app again.
 
@@ -13,6 +10,9 @@ Streaming data to flask vs saving file
 Streaming data is quicker and doesn't bloat disk space if data is large
 Saving file seems easier and allows for more complex features?
 
+
+~~~~ Layout ~~~~~
+Try connecting view dropdown to grid-layout. For invis stuff, put the w,h=0 or translate it off screen or something.
 
 
 

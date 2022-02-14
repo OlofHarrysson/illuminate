@@ -17,8 +17,15 @@ def main():
   y = np.random.random(n_points)
 
   logger.log_line(x, y, 'scatter1')
-  logger.log_line(x, y, 'scatter2', ['main'])
-  logger.log_line(x, y, 'scatter3', ['main', 'images'])
+  logger.log_line(x, y, 'scatter2', ['images'])
+  logger.log_line(x, y, 'scatter3', ['other', 'images'])
+  logger.log_line(x, y, 'scatter4', ['other', 'images'])
+
+  # TODO: Remove the ability to log to view. That should be handeled in the app/server
+
+  # Logger(exp_type/base, exp_id)
+  # Then we can create/edit layout in app and save the layout to somewhere. If the experiement name is known, we can load that same layout.
+  # Or can we simply make an educated guess if two experiments are the same given that they have the same metadata-graphs?
 
 
 class LumiLogger:
@@ -40,7 +47,8 @@ class LumiLogger:
 
   def log_line(self, x, y, ele_id, views=None):
     if views is None:
-      views = ['everything']
+      views = []
+    views.insert(0, 'everything')
 
     df = pd.DataFrame(dict(y=y))
     path = self.outdir / f'{ele_id}.json'
